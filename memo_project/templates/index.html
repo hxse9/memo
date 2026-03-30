@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>심플 메모 하우스</title>
+    <style>
+        :root {
+            --bg-color: #f7fafc;
+            --text-color: #2d3748;
+            --container-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --primary-color: #4299e1;
+            --primary-hover: #3182ce;
+            --secondary-color: #48bb78;
+            --secondary-hover: #38a169;
+            --danger-color: #f56565;
+            --danger-hover: #e53e3e;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+            min-height: 100vh;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background-color: var(--container-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+            text-align: center;
+            font-size: 1.5rem;
+            color: var(--text-color);
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 80px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            resize: none;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+        
+        form.inline-form {
+            flex: 1;
+            display: flex;
+        }
+
+        .btn-save {
+            background-color: var(--primary-color);
+        }
+
+        .btn-save:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-load {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-load:hover {
+            background-color: var(--secondary-hover);
+        }
+
+        .btn-delete {
+            background-color: var(--danger-color);
+        }
+
+        .btn-delete:hover {
+            background-color: var(--danger-hover);
+        }
+
+        .memo-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .memo-item {
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+
+        .memo-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .memo-content {
+            white-space: pre-wrap;
+            flex-grow: 1;
+            margin-right: 15px;
+            line-height: 1.5;
+            word-break: break-all;
+        }
+
+        .memo-date {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-top: 8px;
+            display: block;
+        }
+
+        .delete-form {
+            margin: 0;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            flex: none;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #a0aec0;
+            padding: 20px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>📝 아이디어 노트</h2>
+        
+        <form action="/save" method="post" class="input-group">
+            <textarea name="content" placeholder="오늘의 짧은 메모를 남겨보세요... (2~3줄)" required></textarea>
+            <div class="btn-group">
+                <button type="submit" class="btn-save">저장</button>
+                <button type="submit" formaction="/load" formmethod="get" formnovalidate class="btn-load">불러오기</button>
+                <button type="button" class="btn-delete" title="개별 항목 우측의 '삭제' 버튼을 이용하세요" onclick="alert('불러오기를 한 뒤, 지우고 싶은 메모 우측의 삭제 버튼을 클릭하세요.')">삭제</button>
+            </div>
+        </form>
+
+        <!-- 메모 출력창 (불러오기를 눌렀을 때만 보임) -->
+        {% if memos is not none %}
+            {% if memos|length > 0 %}
+                <ul class="memo-list">
+                    {% for memo in memos %}
+                        <li class="memo-item">
+                            <div class="memo-content">
+                                {{ memo.content }}
+                                <span class="memo-date">{{ memo.created_at }}</span>
+                            </div>
+                            <form action="/delete/{{ memo.id }}" method="post" class="delete-form">
+                                <button type="submit" class="btn-delete btn-small">삭제</button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">저장된 메모가 없습니다.</div>
+            {% endif %}
+        {% endif %}
+    </div>
+</body>
+</html>
